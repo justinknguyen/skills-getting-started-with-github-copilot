@@ -56,8 +56,25 @@ document.addEventListener("DOMContentLoaded", () => {
           details.participants.forEach((p) => {
             const li = document.createElement("li");
             li.className = "participant-item";
-            // Use textContent to avoid injection
-            li.textContent = p;
+
+            // Email text
+            const emailSpan = document.createElement("span");
+            emailSpan.className = "participant-email";
+            emailSpan.textContent = p; // safe
+
+            // Delete button (simple "×" icon)
+            const delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.className = "delete-participant";
+            delBtn.setAttribute("aria-label", `Unregister ${p} from ${name}`);
+            delBtn.textContent = "✖";
+
+            // Store identifying info for the handler
+            delBtn.dataset.activity = name;
+            delBtn.dataset.email = p;
+
+            li.appendChild(emailSpan);
+            li.appendChild(delBtn);
             ul.appendChild(li);
           });
           activityCard.appendChild(ul);
@@ -119,6 +136,47 @@ document.addEventListener("DOMContentLoaded", () => {
       messageDiv.className = "error";
       messageDiv.classList.remove("hidden");
       console.error("Error signing up:", error);
+    }
+  });
+
+  // Event delegation for delete buttons
+  activitiesList.addEventListener("click", async (event) => {
+    const btn = event.target.closest && event.target.closest(".delete-participant");
+    if (!btn) return;
+
+    const activity = btn.dataset.activity;
+    const email = btn.dataset.email;
+
+    if (!activity || !email) return;
+
+    if (!confirm(`Unregister ${email} from ${activity}?`)) return;
+
+    try {
+      const res = await fetch(
+        `/activities/${encodeURIComponent(activity)}/participants?email=${encodeURIComponent(email)}`,
+        { method: "DELETE" }
+      );
+
+      const result = await res.json();
+
+      if (res.ok) {
+        messageDiv.textContent = result.message || "Unregistered successfully";
+        messageDiv.className = "success";
+        messageDiv.classList.remove("hidden");
+        // Refresh activities to reflect change
+        fetchActivities();
+      } else {
+        messageDiv.textContent = result.detail || "Failed to unregister";
+        messageDiv.className = "error";
+        messageDiv.classList.remove("hidden");
+      }
+
+      setTimeout(() => messageDiv.classList.add("hidden"), 4000);
+    } catch (err) {
+      console.error("Error unregistering:", err);
+      messageDiv.textContent = "Failed to unregister. Please try again.";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
     }
   });
 

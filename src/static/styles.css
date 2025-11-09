@@ -84,7 +84,7 @@ section h3 {
 }
 
 .participants-list {
-  list-style: disc inside;
+  list-style: none; /* hide bullet points */
   margin: 6px 0 0 0;
   padding: 0;
 }
@@ -98,6 +98,34 @@ section h3 {
   font-size: 0.95rem;
   color: #333;
   box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+}
+
+/* layout for participant item: text left, delete button right */
+.participant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.participant-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
+}
+
+.delete-participant {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.delete-participant:hover {
+  background: rgba(198,40,40,0.08);
 }
 
 /* Smaller, muted placeholder when no participants */
